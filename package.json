@@ -1,24 +1,45 @@
 {
-  "name": "ollama",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.2"
-  },
-  "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
-  }
+    "name": "ai-document-analyzer",
+    "version": "1.0.0",
+    "description": "AI-powered document analyzer supporting both local LLMs (Ollama) and Google Gemini",
+    "private": true,
+    "scripts": {
+        "dev": "next dev --turbopack",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@google/generative-ai": "0.21.0",
+        "axios": "1.9.0",
+        "lucide-react": "^0.525.0",
+        "mammoth": "^1.9.1",
+        "next": "latest",
+        "pdf-parse": "^1.1.1",
+        "pdf2pic": "3.2.0",
+        "pdfjs-dist": "^5.3.93",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "tesseract.js": "^4.0.2"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4.0.0",
+        "@types/node": "^20.0.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.0.0"
+    },
+    "keywords": [
+        "ai",
+        "document-analysis",
+        "llm",
+        "gemini",
+        "ollama",
+        "nextjs",
+        "typescript",
+        "chromadb"
+    ],
+    "author": "Silas Okanlawon",
+    "license": "MIT"
 }

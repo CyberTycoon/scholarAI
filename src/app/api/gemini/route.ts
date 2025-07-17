@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import pdfParse from 'pdf-parse'
+import { Buffer } from 'buffer'
 
 // Helper function to decode base64 content for images
 function decodeImageContent(base64Content: string): string {
@@ -126,7 +128,8 @@ export async function POST(request: Request) {
         if (files.length > 0) {
             fullPrompt += `\n\nThe user has uploaded ${files.length} file(s). Please analyze the content and provide insights:`
 
-            files.forEach((file, index) => {
+            for (let index = 0; index < files.length; index++) {
+                const file = files[index];
                 fullPrompt += `\n\n--- File ${index + 1}: ${file.name} (${file.type}) ---`
 
                 let decodedContent = ''
@@ -139,8 +142,29 @@ export async function POST(request: Request) {
                 } else if (file.type.includes('json') || file.name.toLowerCase().endsWith('.json')) {
                     decodedContent = processJSONContent(decodeTextContent(file.content, file.name), file.name)
                 } else if (file.type.includes('pdf')) {
-                    // Note: Basic PDF text extraction is limited - in production use a proper PDF parser
-                    decodedContent = `PDF File: ${file.name}\n[Note: PDF parsing is limited in this implementation]\n${decodeTextContent(file.content, file.name).substring(0, 3000)}`
+                    // Decode base64 or text to Buffer
+                    let pdfBuffer: Buffer
+                    if (file.content.startsWith('data:')) {
+                        // Handle base64 Data URL
+                        const base64 = file.content.split(',')[1]
+                        pdfBuffer = Buffer.from(base64, 'base64')
+                    } else {
+                        // Try to decode as base64, fallback to utf-8
+                        try {
+                            pdfBuffer = Buffer.from(file.content, 'base64')
+                        } catch {
+                            pdfBuffer = Buffer.from(file.content, 'utf-8')
+                        }
+                    }
+                    try {
+                        const pdfData = await pdfParse(pdfBuffer)
+                        decodedContent = `PDF File: ${file.name}\n${pdfData.text.substring(0, 4000)}`
+                        if (pdfData.text.length > 4000) {
+                            decodedContent += '\n\n[Content truncated due to length]'
+                        }
+                    } catch (err) {
+                        decodedContent = `PDF File: ${file.name}\n[Error extracting text from PDF: ${err instanceof Error ? err.message : 'Unknown error'}]`;
+                    }
                 } else {
                     // Handle text files, markdown, code files, etc.
                     decodedContent = decodeTextContent(file.content, file.name)
@@ -152,7 +176,7 @@ export async function POST(request: Request) {
                 }
 
                 fullPrompt += `\n${decodedContent}`
-            })
+            }
 
             fullPrompt += `\n\nPlease provide a comprehensive analysis of the uploaded content. Include summaries, key insights, and answer any questions about the files.`
         }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import pdfParse from 'pdf-parse'
+import mammoth from 'mammoth'
 import { Buffer } from 'buffer'
 
 // Helper function to decode base64 content for images
@@ -141,29 +142,23 @@ export async function POST(request: Request) {
                     decodedContent = processCSVContent(decodeTextContent(file.content, file.name), file.name)
                 } else if (file.type.includes('json') || file.name.toLowerCase().endsWith('.json')) {
                     decodedContent = processJSONContent(decodeTextContent(file.content, file.name), file.name)
-                } else if (file.type.includes('pdf')) {
-                    // Decode base64 or text to Buffer
-                    let pdfBuffer: Buffer
-                    if (file.content.startsWith('data:')) {
-                        // Handle base64 Data URL
-                        const base64 = file.content.split(',')[1]
-                        pdfBuffer = Buffer.from(base64, 'base64')
-                    } else {
-                        // Try to decode as base64, fallback to utf-8
-                        try {
-                            pdfBuffer = Buffer.from(file.content, 'base64')
-                        } catch {
-                            pdfBuffer = Buffer.from(file.content, 'utf-8')
-                        }
-                    }
+                } else if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
                     try {
+                        const base64 = file.content.split(',')[1]
+                        const pdfBuffer = Buffer.from(base64, 'base64')
                         const pdfData = await pdfParse(pdfBuffer)
-                        decodedContent = `PDF File: ${file.name}\n${pdfData.text.substring(0, 4000)}`
-                        if (pdfData.text.length > 4000) {
-                            decodedContent += '\n\n[Content truncated due to length]'
-                        }
+                        decodedContent = `PDF File: ${file.name}\n${pdfData.text}`
                     } catch (err) {
                         decodedContent = `PDF File: ${file.name}\n[Error extracting text from PDF: ${err instanceof Error ? err.message : 'Unknown error'}]`;
+                    }
+                } else if (file.type.includes('wordprocessingml.document') || file.name.toLowerCase().endsWith('.docx')) {
+                    try {
+                        const base64 = file.content.split(',')[1]
+                        const docxBuffer = Buffer.from(base64, 'base64')
+                        const { value } = await mammoth.extractRawText({ buffer: docxBuffer })
+                        decodedContent = `DOCX File: ${file.name}\n${value}`
+                    } catch (err) {
+                        decodedContent = `DOCX File: ${file.name}\n[Error extracting text from DOCX: ${err instanceof Error ? err.message : 'Unknown error'}]`;
                     }
                 } else {
                     // Handle text files, markdown, code files, etc.

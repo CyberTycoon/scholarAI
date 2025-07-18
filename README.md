@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 Research Assistant — Privacy-First AI Knowledge Engine
 
-## Getting Started
+**Research Assistant** is a blazing-fast, privacy-focused AI research tool that runs locally via [Ollama](https://ollama.com/) or securely in the cloud. Designed for thinkers, writers, developers, analysts, and researchers, it offers total control over data and models — without sacrificing intelligence or usability.
 
-First, run the development server:
+> 🛡️ Your prompts stay local. Your research stays yours.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- ✅ **Runs Locally or in the Cloud**
+  - Use local models via `Ollama` (e.g., LLaMA, Mistral, Phi-3, etc.)
+  - Or use our cloud-based LLM endpoints for enhanced context
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🔐 **Privacy-First**
+  - No prompt logging or background data sync
+  - Local model support
 
-## Learn More
+- 🧠 **Powerful Research Tools**
+  - Citation-aware summarization
+  - Paper analysis, code explanation, data interpretation
+  - Multilingual input/output support
+  - File input support
 
-To learn more about Next.js, take a look at the following resources:
+- 💾 **Modular Architecture**
+  - Plug-and-play with any local model (via Ollama)
+  - Just research with our cloud model
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 🎯 **Built for Precision & Control**
+  - Real-time inference
+  - Custom prompt engineering
+  - User-defined contexts & memory
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📦 Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Frontend:** Nextjs + Tailwind + Framer Motion
+- **Backend:** completely serverless 
+- **LLM Interface:** Ollama for local model inference and gemini for cloud model
+- **Persistence:** LocalStorage / IndexedDB / Encrypted SQLite (soon)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+

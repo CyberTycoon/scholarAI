@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Upload, X, FileText, Image, File, Paperclip, Plus } from 'lucide-react'
+import { Upload, X, FileText, Image, File, Paperclip, Plus, ChevronDown } from 'lucide-react'
+
+type ModelType = 'gemini' | 'ollama'
 
 interface ChatMessage {
   sender: 'user' | 'system' | 'ai'
@@ -50,6 +52,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [model, setModel] = useState<ModelType>('gemini')
+  const [ollamaModel, setOllamaModel] = useState('llama3')
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false)
+  const [isOllamaGuideOpen, setIsOllamaGuideOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -172,7 +178,11 @@ export default function Home() {
       })
       formData.append('fileCount', uploadedFiles.length.toString())
 
-      const response = await fetch('/api/gemini', {
+      const apiEndpoint = model === 'gemini' ? '/api/gemini' : '/api/ollama'
+      if (model === 'ollama') {
+        formData.append('model', ollamaModel)
+      }
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData
       })
@@ -216,8 +226,80 @@ export default function Home() {
                 <span className="text-xs font-medium text-gray-500 tracking-wide">Your Research Assistant</span>
               </div>
             </div>
+            <div className="relative">
+              <button
+                onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                <span>Model: {model === 'gemini' ? 'ScholarAI' : 'Ollama (Local)'}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isModelSelectorOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isModelSelectorOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-30 border">
+                  <button
+                    onClick={() => { setModel('gemini'); setIsModelSelectorOpen(false); }}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    ScholarAI (Cloud)
+                  </button>
+                  <button
+                    onClick={() => { setModel('ollama'); setIsModelSelectorOpen(false); }}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Ollama (Local)
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
+
+        {model === 'ollama' && (
+          <div className="px-6 py-4 bg-gray-100 border-b">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-bold text-md">Ollama Local Model Configuration</h3>
+                <button onClick={() => setIsOllamaGuideOpen(!isOllamaGuideOpen)} className="text-sm text-blue-600 hover:underline">
+                  {isOllamaGuideOpen ? 'Hide' : 'Show'} Setup Guide
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                You've selected to use a local model with Ollama. This ensures your data remains private and on your machine.
+              </p>
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-gray-600">Model Name</label>
+                  <input
+                    type="text"
+                    value={ollamaModel}
+                    onChange={(e) => setOllamaModel(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 mt-1 text-sm"
+                    placeholder="e.g., llama3"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => inputRef.current?.focus()}
+                  className="px-5 py-1.5 rounded-md bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800"
+                >
+                  Set Model
+                </button>
+              </div>
+              {isOllamaGuideOpen && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-bold text-md mb-2 text-blue-900">Ollama Setup Guide</h4>
+                  <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
+                    <li>Download and install Ollama from <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 hover:underline">ollama.ai</a>.</li>
+                    <li>Open your terminal and pull a model. For example, to get Llama 3, run: <code className="bg-blue-100 text-blue-900 px-1 rounded">ollama pull llama3</code></li>
+                    <li>Run the model with the command: <code className="bg-blue-100 text-blue-900 px-1 rounded">ollama run llama3</code></li>
+                    <li>Make sure the Ollama server is running in the background.</li>
+                    <li>Enter the model name you installed in the input field above and click "Set Model".</li>
+                  </ol>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Chat Area */}
         <main
@@ -258,10 +340,10 @@ export default function Home() {
 
                   {/* Display uploaded files */}
                   {msg.files && msg.files.length > 0 && (
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 grid grid-cols-2 gap-2">
                       {msg.files.map((file) => (
                         <div key={file.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border">
-                          {getFileIcon(file.type)}
+                          <div className="flex-shrink-0">{getFileIcon(file.type)}</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                             <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
@@ -287,16 +369,19 @@ export default function Home() {
 
         {/* File Upload Area */}
         {uploadedFiles.length > 0 && (
-          <div className="fixed bottom-16 left-0 w-full bg-white border-t border-gray-200 z-10 max-h-32 overflow-y-auto">
-            <div className="p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Paperclip className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Attached Files</span>
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 z-10">
+            <div className="bg-white/80 backdrop-blur-sm border border-gray-200/80 rounded-lg p-3 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Paperclip className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Attached Files</span>
+                </div>
+                <button onClick={() => setUploadedFiles([])} className="text-xs text-gray-500 hover:underline">Clear all</button>
               </div>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto">
                 {uploadedFiles.map((file) => (
                   <div key={file.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border">
-                    {getFileIcon(file.type)}
+                    <div className="flex-shrink-0">{getFileIcon(file.type)}</div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                       <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>

@@ -202,21 +202,27 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col w-full">
-      <div className="flex flex-col flex-1 w-full max-w-full mx-auto" style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen bg-gray-50 text-black flex flex-col w-full font-sans">
+      <div className="flex flex-col flex-1 w-full max-w-4xl mx-auto" style={{ minHeight: '100vh' }}>
         {/* Header */}
-        <div className="w-full px-4 py-6 border-b border-gray-200 flex items-center justify-between">
-          <div className="text-2xl font-bold text-black flex items-center gap-2">
-            <span>ScholarAI</span>
-            <span className="text-xs font-normal text-gray-500">Research Assistant</span>
+        <header className="w-full px-4 py-5 border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <span className="bg-gray-900 text-white rounded-md p-2 flex items-center justify-center w-10 h-10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6.52c.2-.22.32-.48.32-.77V3.5c0-.28-.13-.53-.33-.7A4.33 4.33 0 0 0 8 2c-2.2 0-4 1.8-4 4c0 1.4.73 2.63 1.87 3.33c.1.06.2.13.3.2l3.5 3.5c.1.1.2.1.3 0l3.5-3.5c.1-.1.2-.17.3-.22Z" /><path d="m12 6.52-3.5 3.5c-.1.1-.1.2 0 .3l3.5 3.5c.1.1.17.2.22.3c.06.1.13.2.2.3c.7.47 1.6.75 2.58.75c2.2 0 4-1.8 4-4c0-1.4-.73-2.63-1.87-3.33A.83.83 0 0 1 17.5 8V5.77c0-.28-.13-.53-.33-.7A4.33 4.33 0 0 0 13.5 4c-1.4 0-2.63.73-3.33 1.87c-.06.1-.13.2-.2.3Z" /></svg>
+              </span>
+              <div className="flex flex-col">
+                <span className="leading-tight">ScholarAI</span>
+                <span className="text-xs font-medium text-gray-500 tracking-wide">Your Research Assistant</span>
+              </div>
+            </div>
           </div>
-        </div>
+        </header>
 
         {/* Chat Area */}
-        <div
-          className={`flex-1 w-full max-w-full mx-auto overflow-y-auto px-0 md:px-0 pb-32 transition-all duration-200 ${isDragging ? 'bg-blue-50 border-2 border-dashed border-blue-300' : 'bg-white'
+        <main
+          className={`flex-1 w-full overflow-y-auto px-4 md:px-6 pb-40 transition-all duration-200 ${isDragging ? 'bg-blue-50/50 border-2 border-dashed border-blue-300' : ''
             }`}
-          style={{ background: isDragging ? '#f0f9ff' : 'white' }}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -231,18 +237,22 @@ export default function Home() {
             </div>
           )}
 
-          <div className="w-full p-4 space-y-4">
+          <div className="w-full p-4 space-y-6">
             {chat.map((msg, i) => (
-              <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xl w-full sm:max-w-2xl`}>
-                  {msg.sender === 'ai' ? (
+              <div key={i} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {msg.sender === 'ai' && (
+                  <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6.52c.2-.22.32-.48.32-.77V3.5c0-.28-.13-.53-.33-.7A4.33 4.33 0 0 0 8 2c-2.2 0-4 1.8-4 4c0 1.4.73 2.63 1.87 3.33c.1.06.2.13.3.2l3.5 3.5c.1.1.2.1.3 0l3.5-3.5c.1-.1.2-.17.3-.22Z" /><path d="m12 6.52-3.5 3.5c-.1.1-.1.2 0 .3l3.5 3.5c.1.1.17.2.22.3c.06.1.13.2.2.3c.7.47 1.6.75 2.58.75c2.2 0 4-1.8 4-4c0-1.4-.73-2.63-1.87-3.33A.83.83 0 0 1 17.5 8V5.77c0-.28-.13-.53-.33-.7A4.33 4.33 0 0 0 13.5 4c-1.4 0-2.63.73-3.33 1.87c-.06.1-.13.2-.2.3Z" /></svg>
+                  </div>
+                )}
+                <div className={`max-w-2xl ${msg.sender === 'user' ? 'w-full md:w-1/2' : 'w-full'}`}>
+                  {msg.sender === 'ai' || msg.sender === 'system' ? (
                     <div
-                      className={`px-4 py-2 rounded-xl text-sm whitespace-pre-line bg-black text-white`}
+                      className={`px-5 py-3 rounded-2xl text-sm whitespace-pre-line bg-white border border-gray-200/80 shadow-sm text-gray-800`}
                       dangerouslySetInnerHTML={{ __html: renderGeminiMarkdown(msg.text) }}
                     />
                   ) : (
-                    <div className={`px-4 py-2 rounded-xl text-sm whitespace-pre-line ${msg.sender === 'user' ? 'bg-gray-100 text-black' : 'bg-gray-50 text-black'
-                      }`}>
+                    <div className={`px-5 py-3 rounded-2xl text-sm whitespace-pre-line bg-gray-900 text-white shadow-md`}>
                       {msg.text}
                     </div>
                   )}
@@ -266,13 +276,15 @@ export default function Home() {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="max-w-[80%] px-4 py-2 rounded-xl shadow bg-gray-50 text-purple-900 text-sm animate-pulse">
-                  ScholarAI is processing your request...
+                <div className="flex items-center space-x-2 px-4 py-3 rounded-2xl bg-white border border-gray-200/80 shadow-sm">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </main>
 
         {/* File Upload Area */}
         {uploadedFiles.length > 0 && (
@@ -305,10 +317,9 @@ export default function Home() {
 
         {/* Chat Input Fixed at Bottom */}
         <div
-          className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-10"
-          style={{ boxShadow: '0 -2px 8px rgba(0,0,0,0.03)' }}
+          className="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-sm border-t border-gray-200/80 z-20"
         >
-          <div className="w-full flex items-center gap-2 px-4 py-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-2 px-4 py-3">
             <div className="flex items-center gap-1">
               <button
                 type="button"
@@ -350,19 +361,19 @@ export default function Home() {
                   handleAsk(e as any)
                 }
               }}
-              placeholder="Ask a question, upload files, or request analysis..."
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring bg-white text-black"
+              placeholder="Ask a question or upload files for analysis..."
+              className="flex-1 rounded-full border-2 border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white text-black transition-shadow"
               style={{ minWidth: 0 }}
               disabled={loading}
             />
             <button
               type="button"
               onClick={handleAsk}
-              className="px-4 py-2 rounded bg-black text-white text-xs font-semibold hover:bg-gray-800 border border-black transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 border border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               disabled={(!message.trim() && uploadedFiles.length === 0) || loading}
-              style={{ minWidth: 80 }}
             >
-              Send
+              <span>Send</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
           </div>
         </div>

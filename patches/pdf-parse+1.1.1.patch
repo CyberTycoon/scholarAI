@@ -1,0 +1,79 @@
+diff --git a/node_modules/pdf-parse/index.js b/node_modules/pdf-parse/index.js
+index e9fc367..fdfd224 100644
+--- a/node_modules/pdf-parse/index.js
++++ b/node_modules/pdf-parse/index.js
+@@ -3,7 +3,7 @@ const Pdf = require('./lib/pdf-parse.js');
+ 
+ module.exports = Pdf;
+ 
+-let isDebugMode = !module.parent; 
++let isDebugMode = false;
+ 
+ //process.env.AUTO_KENT_DEBUG
+ 
+@@ -13,13 +13,13 @@ if (isDebugMode) {
+ 
+     let PDF_FILE = './test/data/05-versions-space.pdf';
+     let dataBuffer = Fs.readFileSync(PDF_FILE);
+-    Pdf(dataBuffer).then(function(data) {
++    Pdf(dataBuffer).then(function (data) {
+         Fs.writeFileSync(`${PDF_FILE}.txt`, data.text, {
+             encoding: 'utf8',
+             flag: 'w'
+         });
+         debugger;
+-    }).catch(function(err) {
++    }).catch(function (err) {
+         debugger;
+     });
+ 
+diff --git a/node_modules/pdf-parse/lib/pdf-parse.js b/node_modules/pdf-parse/lib/pdf-parse.js
+index 96bfbc7..cb2bf55 100644
+--- a/node_modules/pdf-parse/lib/pdf-parse.js
++++ b/node_modules/pdf-parse/lib/pdf-parse.js
+@@ -12,17 +12,17 @@ function render_page(pageData) {
+     }
+ 
+     return pageData.getTextContent(render_options)
+-        .then(function(textContent) {
++        .then(function (textContent) {
+             let lastY, text = '';
+             //https://github.com/mozilla/pdf.js/issues/8963
+             //https://github.com/mozilla/pdf.js/issues/2140
+             //https://gist.github.com/hubgit/600ec0c224481e910d2a0f883a7b98e3
+             //https://gist.github.com/hubgit/600ec0c224481e910d2a0f883a7b98e3
+             for (let item of textContent.items) {
+-                if (lastY == item.transform[5] || !lastY){
++                if (lastY == item.transform[5] || !lastY) {
+                     text += item.str;
+                 }
+-                else{
++                else {
+                     text += '\n' + item.str;
+                 }
+                 lastY = item.transform[5];
+@@ -68,10 +68,14 @@ async function PDF(dataBuffer, options) {
+     // the URL of the script to be loaded, and dynamically loading a cross-origin
+     // script does not work).
+     PDFJS.disableWorker = true;
++    // More robustly disable worker by setting workerSrc to null
++    if (PDFJS.GlobalWorkerOptions) {
++        PDFJS.GlobalWorkerOptions.workerSrc = null;
++    }
+     let doc = await PDFJS.getDocument(dataBuffer);
+     ret.numpages = doc.numPages;
+ 
+-    let metaData = await doc.getMetadata().catch(function(err) {
++    let metaData = await doc.getMetadata().catch(function (err) {
+         return null;
+     });
+ 
+@@ -84,7 +88,7 @@ async function PDF(dataBuffer, options) {
+     ret.text = "";
+ 
+     for (var i = 1; i <= counter; i++) {
+-        let pageText = await doc.getPage(i).then(pageData => options.pagerender(pageData)).catch((err)=>{
++        let pageText = await doc.getPage(i).then(pageData => options.pagerender(pageData)).catch((err) => {
+             // todo log err using debug
+             debugger;
+             return "";
